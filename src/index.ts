@@ -105,7 +105,7 @@ function createDistAst(struct: ImportedStruct, options: Options) {
   const importPath = join(libraryName!, libraryDirectory)
   let importOverridePath = importPath;
   if(!!options.override && options.override.hasOwnProperty(_importName)) {
-    importOverridePath = join(options.override[_importName], libraryDirectory);
+    importOverridePath = options.override[_importName];
   }
   try {
     require.resolve(importOverridePath)
