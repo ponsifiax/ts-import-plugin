@@ -79,7 +79,7 @@ function getImportedStructs(node: ts.Node) {
   return structs
 }
 
-function createDistAst(struct: ImportedStruct, options: Options, node: ts.Node) {
+function createDistAst(struct: ImportedStruct, options: Options) {
   const astNodes: ts.Node[] = []
 
   const { libraryName } = options
@@ -198,7 +198,7 @@ export function createTransformer(_options: Partial<Options> | Array<Partial<Opt
 
       return Array.from(structs).reduce(
         (acc, struct) => {
-          const nodes = createDistAst(struct, options, node)
+          const nodes = createDistAst(struct, options)
           return acc.concat(nodes)
         },
         <ts.Node[]>[],
