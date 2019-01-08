@@ -7,7 +7,8 @@ export interface Options {
   libraryDirectory?: ((name: string) => string) | string
   camel2DashComponentName?: boolean
   camel2UnderlineComponentName?: boolean
-  transformToDefaultImport?: boolean
+  transformToDefaultImport?: boolean,
+  override?: {[importName: string]: string}
 }
 
 export interface ImportedStruct {
@@ -78,7 +79,7 @@ function getImportedStructs(node: ts.Node) {
   return structs
 }
 
-function createDistAst(struct: ImportedStruct, options: Options) {
+function createDistAst(struct: ImportedStruct, options: Options, node: ts.Node) {
   const astNodes: ts.Node[] = []
 
   const { libraryName } = options
@@ -102,8 +103,12 @@ function createDistAst(struct: ImportedStruct, options: Options) {
   }
 
   const importPath = join(libraryName!, libraryDirectory)
+  let importOverridePath = importPath;
+  if(!!options.override && options.override.hasOwnProperty(_importName)) {
+    importOverridePath = join(options.override[_importName], libraryDirectory);
+  }
   try {
-    require.resolve(importPath)
+    require.resolve(importOverridePath)
     const scriptNode = ts.createImportDeclaration(
       undefined,
       undefined,
@@ -122,7 +127,7 @@ function createDistAst(struct: ImportedStruct, options: Options) {
             ? undefined
             : ts.createNamedImports([ts.createImportSpecifier(undefined, ts.createIdentifier(struct.importName))]),
       ),
-      ts.createLiteral(importPath),
+      ts.createLiteral(importOverridePath),
     )
 
     astNodes.push(scriptNode)
@@ -193,7 +198,7 @@ export function createTransformer(_options: Partial<Options> | Array<Partial<Opt
 
       return Array.from(structs).reduce(
         (acc, struct) => {
-          const nodes = createDistAst(struct, options)
+          const nodes = createDistAst(struct, options, node)
           return acc.concat(nodes)
         },
         <ts.Node[]>[],
