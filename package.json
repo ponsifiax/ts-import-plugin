@@ -1,6 +1,6 @@
 {
   "name": "ts-import-plugin-override",
-  "version": "1.5.6",
+  "version": "1.5.7",
   "description": "babel-plugin-import-override TypeScript version",
   "main": "index.js",
   "typings": "index.d.ts",
