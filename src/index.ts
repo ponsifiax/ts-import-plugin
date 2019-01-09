@@ -1,6 +1,7 @@
 import * as ts from 'typescript'
 import { join as pathJoin, sep } from 'path'
 
+   
 export interface Options {
   libraryName?: string
   style?: boolean | 'css' | string | ((name: string) => string)
@@ -104,11 +105,13 @@ function createDistAst(struct: ImportedStruct, options: Options) {
 
   const importPath = join(libraryName!, libraryDirectory)
   let importOverridePath = importPath;
-  if(!!options.override && options.override.hasOwnProperty(_importName)) {
+  let override = false;
+  if((!struct.variableName || !struct.variableName.startsWith("_")) && !!options.override && options.override.hasOwnProperty(_importName)) {
     importOverridePath = options.override[_importName];
+    override = true
   }
   try {
-    require.resolve(importOverridePath)
+    !override && require.resolve(importOverridePath)
     const scriptNode = ts.createImportDeclaration(
       undefined,
       undefined,
